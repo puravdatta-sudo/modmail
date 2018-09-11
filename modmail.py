@@ -2,7 +2,8 @@ import discord
 import json
 import os
 import sys
-from discord.ext.commands import command, has_permissions, bot_has_permissions, Bot, NotOwner
+import random
+from discord.ext.commands import command, has_permissions, bot_has_permissions, Bot, NotOwner, CommandNotFound
 from asyncio import sleep
 
 CONFIG_PATH = "config.json"
@@ -25,25 +26,37 @@ class ModmailBot(object):
     async def on_ready(self):
         print(f"Signed in as {self.bot.user} ({self.bot.user.id})")
     async def on_message(self, message):
-        if not isinstance(message.channel, discord.DMChannel) or message.author.id == self.bot.user.id:
+        in_dms = isinstance(message.channel, discord.DMChannel)
+        is_mentioned = self.bot.user.id in map(lambda u: u.id, message.mentions)
+
+        if not (in_dms or is_mentioned) or message.author.id == self.bot.user.id:
             # not a DM, or it's just the bot itself
             return
         channel = self.bot.get_channel(self.config["mail_channel"])
         if not channel:
             print("Mail channel not found! Reconfigure bot!")
         
-        content = message.clean_content
+        content = message.content
 
-        embed = discord.Embed(title="New modmail!")
+        embed = discord.Embed(title="New modmail!" if in_dms else "New bot ping!")
+        embed.color = random.randint(0, 0xffffff)
         embed.add_field(name="Author", value=f"{message.author.mention} ({message.author.id})", inline=False)
         embed.add_field(name="Message", value=content[:1000] or "blank")
         if message.attachments:
             embed.add_field(name="Attachments", value=", ".join([i.url for i in message.attachments]))
         if len(content[1000:]) > 0:
             embed.add_field(name="Message (continued):", value=content[1000:])
+        if not in_dms:
+            embed.add_field(name="Message link", value=f"https://discordapp.com/channels/{message.guild.id}/{message.channel.id}/{message.id}")
         await channel.send(content=f"{message.author.id}", embed=embed)
-        await message.add_reaction('📬')
+        
+        if in_dms:
+            await message.add_reaction('📬')
         self.last_user = message.author
+
+    async def on_command_error(self, ctx, err):
+        if isinstance(err, CommandNotFound):
+            return
 
     async def _shutdown(self):
         await self.bot.logout()
