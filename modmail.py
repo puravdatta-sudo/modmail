@@ -40,7 +40,7 @@ class ModmailBot(object):
 
         embed = discord.Embed(title="New modmail!" if in_dms else "New bot ping!")
         embed.color = random.randint(0, 0xffffff)
-        embed.add_field(name="Author", value=f"{message.author.mention} ({message.author.id})", inline=False)
+        embed.add_field(name="Author", value=f"{message.author.mention} ({message.author} | {message.author.id})", inline=False)
         embed.add_field(name="Message", value=content[:1000] or "blank")
         if message.attachments:
             embed.add_field(name="Attachments", value=", ".join([i.url for i in message.attachments]))
