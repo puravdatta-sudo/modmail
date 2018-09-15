@@ -25,6 +25,7 @@ class ModmailBot(object):
 
     async def on_ready(self):
         print(f"Signed in as {self.bot.user} ({self.bot.user.id})")
+
     async def on_message(self, message):
         in_dms = isinstance(message.channel, discord.DMChannel)
         is_mentioned = self.bot.user.id in map(lambda u: u.id, message.mentions)
@@ -73,7 +74,7 @@ class ModmailBot(object):
             await user.send(msg)
         await ctx.message.add_reaction('📬')
 
-    @command()
+    @command(aliases=["r"])
     async def reply(self, ctx, *, msg):
         if self.last_user is None:
             await ctx.send("No user to reply to!")
