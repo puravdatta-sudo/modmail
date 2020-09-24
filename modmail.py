@@ -5,7 +5,7 @@ import sys
 import random
 from discord.ext.commands import command, has_permissions, bot_has_permissions, Bot, NotOwner, CommandNotFound
 from asyncio import sleep
-
+from discord.ext import commands
 CONFIG_PATH = "config.json"
 default_config = {
         "token": "[ add bot token here ]",
@@ -17,7 +17,7 @@ default_config = {
         "from_field": 1,
 }
 
-class ModmailBot(object):
+class ModmailBot(commands.Cog):
     def __init__(self, bot, config):
         self.bot = bot
         self.config = config
